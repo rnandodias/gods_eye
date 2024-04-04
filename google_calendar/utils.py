@@ -464,6 +464,7 @@ def create_timeline(quarterly_planning_events_json, filename):
 # --------------------------------------------------------------------------------------
 # Cria a timeline com as atividades programadas
 def config_timeline(df, nome):
+    produtos = ['Curso', 'Curso (E)', 'Artigo', 'Artigo Pilar', 'Alura+', 'Férias', 'Palestra', 'Quinta com Dados', 'TechGuide', 'Podcast', 'Imersão']
     hoje = datetime.now()
     inicio_tri = '2024-04-01'
     fim_tri = '2024-06-30'
@@ -475,7 +476,8 @@ def config_timeline(df, nome):
         x_end="Término",
         y="Responsável",
         hover_name="Tarefa",
-        color_discrete_sequence=['#FFB878', '#51B749', '#A4BDFC', '#636EFA', '#DC2127', '#E1E1E1', '#FBD75B', '#7AE7BF', '#FF887C', '#51B749'],
+        color_discrete_sequence=['#636EFA', '#636EFA', '#DC2127', '#DC2127', '#D75413', '#008800', '#FFFF00', '#E1E1E1', '#E1E1E1', '#E1E1E1', '#E1E1E1'],
+        category_orders={'Produto': produtos},
         opacity=.7,
         text="Atividade",
         range_x=None,
