@@ -1,5 +1,6 @@
 *.csv
 lista_de_tuplas.txt
+*.ini
 
 # Bytecode compilado
 __pycache__/
