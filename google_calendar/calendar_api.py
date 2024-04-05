@@ -202,11 +202,20 @@ if __name__ == '__main__':
     instructors=["Afonso", "Allan", "Ana Duarte", "Bia", "Danielle", "Igor", "João", "Marcelo", "Mirla", "Val", "Daniel", "David"]
     # ('Igor', 'O que é e para que serve a modelagem de dados?')
     priorities=[
+        ('Bia', 'Storytelling com dados'),
+        ('Bia', 'Engenharia reversa com o Power Architect'),
+        ('Bia', '3811 - Modelagem de dados: Modelo físico'),
+        ('Bia', 'O que é normalização?'),
+        ('Igor', 'Qualidade de dados na Cloud'),
+        ('Igor', 'Dicionário de Dados'),
+        ('Igor', '3809 - Modelagem de dados: Modelo lógico'),
         ('Igor', 'Modelo lógico x Modelo físico'),
         ('Igor', 'O que é e para que serve a modelagem de dados?'),
         ('Allan', '3774 - TensorFlow Keras: Completando textos com redes LSTM'),
         ('Allan', '3773 - TensorFlow Keras: Classificando imagens com redes convolucionais'),
         ('Allan', 'Métricas de avaliação para clusterização'),
+        ('Marcelo', 'CRAN, R forge e Git hub: Aonde encontrar meu pacote?'),
+        ('Marcelo', 'Governança de dados em um Data Lake'),
         ('Marcelo', 'Séries temporais e suas aplicações'),
         ('Marcelo', 'Como a correlação é utilizada na prática'),
         ('Marcelo', 'Identação e boas práticas em medidas'),
