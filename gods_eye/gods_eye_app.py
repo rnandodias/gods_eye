@@ -281,7 +281,15 @@ class GodsEye:
                 data = {
                     "children": children
                 }
-                self.notion.append_block_children(id, data)
+
+            data_json = {
+                "parent": {"type": "page_id", "page_id": f"{id}"},
+                "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/90cfa4a4-a1fc-4656-b708-8f610eab24ab.webp"}},
+                "icon": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/054a40da-bce6-4fbc-97ef-3001ae18bcf4.webp"}},
+                "properties": {"title": {"title": [{"text": {"content": "1º Trimestre 2024"}}]}}
+            }
+            _, page_content = self.notion.create_page(data_json)
+            self.notion.append_block_children(page_content['id'], data)
 
     # --------------------------------------------------------------------------------------
     # Atualiza o database de acompanhamento de produção dos instrutores
@@ -401,9 +409,9 @@ if __name__ == '__main__':
     # response = gods_eye.backup_tasks_database()
     # gods_eye.restore_tasks_database()
     # response = gods_eye.monitoring_production(instructors=["João"], page_title="1º Trimestre 2024", start="2024-01-01", end="2024-03-31")
-    response = gods_eye.statistics(instructors)
+    # response = gods_eye.statistics(instructors)
     
-    # response = gods_eye.create_quarterly_report(["João"], start="2024-01-01", end="2024-03-31")
+    response = gods_eye.create_quarterly_report(["João", "Marcelo"], start="2024-01-01", end="2024-03-31")
     # try:
     #     print(json.dumps(response, indent=4, sort_keys=True, ensure_ascii=False))
     # except:

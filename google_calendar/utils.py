@@ -8,10 +8,7 @@ import plotly.express as px
 import plotly.graph_objs as go
 
 # --------------------------------------------------------------------------------------
-# Função para identificar a data de entrega da última demanda ou férias 
-
-
-
+# Função para tratamento de datas 
 def parse_date(date_str):
     for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%SZ'):
         try:
@@ -20,6 +17,8 @@ def parse_date(date_str):
             continue
     return ''
 
+# --------------------------------------------------------------------------------------
+# Função para configurar um evento de agenda 
 def configure_updated_events(event, instructor):
     today = datetime.strptime(datetime.now().strftime('%Y-%m-%d'), '%Y-%m-%d')
     start = parse_date(event['start'].get('dateTime', event['start'].get('date')))

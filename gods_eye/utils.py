@@ -7,14 +7,18 @@ import os
 # Função para criar uma avaliação de desempenho com o ChatGPT
 # --------------------------------------------------------------------------------------
 def report(prompt):
-    load_dotenv()
-    client = openai.OpenAI(api_key=os.getenv('OPENAI_CREDENTIALS'))
-    response = client.chat.completions.create(
-        model = "gpt-4",
-        messages = [{"role": "user", "content": prompt}]
-    )
+    try:
+        load_dotenv()
+        client = openai.OpenAI(api_key=os.getenv('OPENAI_CREDENTIALS'))
+        response = client.chat.completions.create(
+            model = "gpt-4",
+            messages = [{"role": "user", "content": prompt}]
+        )
 
-    return response.choices[0].message.content
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"Erro ao realizar o backup: {e}")
+        return ""
 
 # --------------------------------------------------------------------------------------
 # Função para tratar e criar os dados que serão utilizados na atualização do database de tarefas
