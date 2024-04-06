@@ -199,7 +199,7 @@ class GoogleCalendarAPI:
 # --------------------------------------------------------------------------------------
 if __name__ == '__main__':
     calendar_api = GoogleCalendarAPI()
-    instructors=["Afonso", "Allan", "Ana Duarte", "Bia", "Danielle", "Igor", "João", "Marcelo", "Mirla", "Val", "Daniel", "David"]
+    instructors=["Afonso", "Allan", "Ana Duarte", "Bia", "Danielle", "Igor", "João", "Marcelo", "Mirla", "Val", "Daniel", "David", "Rodrigo"]
     # ('Igor', 'O que é e para que serve a modelagem de dados?')
     priorities=[
         ('Bia', 'Storytelling com dados'),
@@ -227,6 +227,7 @@ if __name__ == '__main__':
         ('Val', '3765 - NLP: aprendendo processamento de linguagem natural'),
         ('Val', '3768 - Regressão: modelos boosting'),
         ('Mirla', 'Árvores para Classificação e Regressão'),
+        ('Mirla', 'PLN: o que é Processamento de Linguagem Natural?'),
         ('Mirla', '3764 - Clusterização: lidando com dados sem rótulo'),
         ('Mirla', '3767 - Regressão: árvores de regressão'),
         ('Afonso', '3766 - Regressão Linear: técnicas avançadas de modelagem'),
