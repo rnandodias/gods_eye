@@ -411,7 +411,7 @@ if __name__ == '__main__':
     # response = gods_eye.monitoring_production(instructors=["João"], page_title="1º Trimestre 2024", start="2024-01-01", end="2024-03-31")
     # response = gods_eye.statistics(instructors)
     
-    response = gods_eye.create_quarterly_report(["João", "Marcelo"], start="2024-01-01", end="2024-03-31")
+    # response = gods_eye.create_quarterly_report(["João", "Marcelo"], start="2024-01-01", end="2024-03-31")
     # try:
     #     print(json.dumps(response, indent=4, sort_keys=True, ensure_ascii=False))
     # except:
