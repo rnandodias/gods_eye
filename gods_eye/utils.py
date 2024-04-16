@@ -3,6 +3,18 @@ import openai
 from dotenv import load_dotenv
 import os
 
+
+# --------------------------------------------------------------------------------------
+# Função para retornar a data mais antiga e a mais recente em uma lista de datas no formato string
+# --------------------------------------------------------------------------------------
+def min_max_dates(lst_dates):
+    datas = [datetime.strptime(data, "%Y-%m-%d") for data in lst_dates]
+
+    start_date = min(datas)
+    end_date = max(datas)
+
+    return start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")
+
 # --------------------------------------------------------------------------------------
 # Função para criar uma avaliação de desempenho com o ChatGPT
 # --------------------------------------------------------------------------------------
@@ -69,6 +81,24 @@ def data_input(database_id, item):
     }
 
 # --------------------------------------------------------------------------------------
+# Função para configurar o database de conteúdos produzidos
+# --------------------------------------------------------------------------------------
+def data_produced_content_create(page_id):
+    return {
+        "parent": {"type": "page_id", "page_id": f"{page_id}"},
+        "is_inline": True,
+        "title": [{"type": "text", "text": {"content": "Conteúdos Produzidos", "link": None}}],
+        "properties": {
+            "Produto": {"rich_text": {}},
+            "Código do Produto": {"rich_text": {}},
+            "Título do Produto": {"type": "title", "title": {}},
+            "Instrutor(a)": {"rich_text": {}},
+            "Período de Produção": {"type": "date", "date": {}},
+            "Tempo de Produção (em Dias)": {"number": {}}
+        }
+    }
+
+# --------------------------------------------------------------------------------------
 # Função para configurar o database de avaliação de competências
 # --------------------------------------------------------------------------------------
 def data_competency_assessment_create(page_id):
@@ -79,11 +109,11 @@ def data_competency_assessment_create(page_id):
         "properties": {
             "Tarefa": {"type": "title","title": {}},
             "Id": {"rich_text": {}},
-            "Produto": {"rich_text": {}},
-            "Código do Produto": {"rich_text": {}},
-            "Título do Produto": {"rich_text": {}},
-            "Instrutor(a)": {"rich_text": {}},
-            "Atividade": {"rich_text": {}},
+            # "Produto": {"rich_text": {}},
+            # "Código do Produto": {"rich_text": {}},
+            # "Título do Produto": {"rich_text": {}},
+            # "Instrutor(a)": {"rich_text": {}},
+            # "Atividade": {"rich_text": {}},
             "Dedicação": {
                 "select": {
                     "options": [
@@ -176,7 +206,6 @@ def data_competency_assessment_create(page_id):
             }
         }
     }
-
 
 # --------------------------------------------------------------------------------------
 # Função para dividir um texto em blocos de 2000 caracteres sem partir palavras

@@ -73,10 +73,14 @@ def configure_updated_events(event, instructor):
 # --------------------------------------------------------------------------------------
 # Função para identificar a data de entrega da última demanda ou férias 
 def find_last_task_or_vacation_date(events):
-    agendas = pd.read_json(json.dumps(events), orient='records')
-    agendas = agendas[['Pessoa', 'End']].groupby(by=['Pessoa']).max().reset_index().rename(columns={'Pessoa': 'Instrutor', 'End': 'Final'})
-    return agendas
-
+    try:
+        agendas = pd.read_json(json.dumps(events), orient='records')
+        agendas = agendas[['Pessoa', 'End']].groupby(by=['Pessoa']).max().reset_index().rename(columns={'Pessoa': 'Instrutor', 'End': 'Final'})
+        return agendas
+    except Exception as e:
+        print(f"Falha ao obter os últimos eventos: {e}")
+        return None
+    
 # --------------------------------------------------------------------------------------
 # Função para leitura de planilha do Google Sheets
 def read_google_sheets(sheet_id, sheet_name):
@@ -373,12 +377,24 @@ def create_agenda(start_work_cycle, plan, instructors, last_task_or_vacation_dat
     year, month, day = [int(item) for item in start_work_cycle.split('-')]
     start_work_cycle = date(year, month, day)
 
+    # if vacation:
+    #     start_of_vacation, vacation_duration = vacation
+    #     year, month, day = [int(item) for item in start_of_vacation.split('-')]
+    #     start_of_vacation = date(year, month, day)
+    # else:
+    #     start_of_vacation = pd.NaT
+
+    # str(start_of_vacation + timedelta(days=vacation_duration))
+
     scheduling = {}
     for instructor in instructors:
         agenda = []
         try:
-            ultima_entrega = pd.to_datetime(last_task_or_vacation_date.query('Instrutor == @instructor')['Final'].values[0])
-            ultima_entrega = date(ultima_entrega.year, ultima_entrega.month, ultima_entrega.day)
+            if last_task_or_vacation_date is not None:
+                ultima_entrega = pd.to_datetime(last_task_or_vacation_date.query('Instrutor == @instructor')['Final'].values[0])
+                ultima_entrega = date(ultima_entrega.year, ultima_entrega.month, ultima_entrega.day)
+            else:
+                ultima_entrega = start_work_cycle
 
             if ultima_entrega > start_work_cycle:
                 inicio = str(ultima_entrega)
@@ -393,7 +409,7 @@ def create_agenda(start_work_cycle, plan, instructors, last_task_or_vacation_dat
                     ferias = (ferias_compilado[instructor]['inicio_ferias'], ferias_compilado[instructor]['duracao_ferias'])
                 except:
                     ferias = ()
-
+                # print(instructor, '->', ferias, '->', ultima_entrega)
                 if plan['Tipo'][i] == 'Quinta com Dados' or plan['Tipo'][i] == 'Palestra' or plan['Tipo'][i] == 'Podcast':
                     year, month, day = [int(item) for item in plan['Conteúdos'][i].split()[-1].replace('[', '').replace(']', '').split('-')]
                     evento, _ = create_event(plan['Tipo'][i], plan['Conteúdos'][i], str(date(year, month, day) - timedelta(days=6)), ferias)

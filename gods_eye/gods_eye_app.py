@@ -9,6 +9,7 @@ from gods_eye import utils
 
 import json
 import pandas as pd
+from collections import Counter
 
 class GodsEye:
     # --------------------------------------------------------------------------------------
@@ -292,10 +293,11 @@ class GodsEye:
             self.notion.append_block_children(page_content['id'], data)
 
     # --------------------------------------------------------------------------------------
-    # Atualiza o database de acompanhamento de produção dos instrutores
-    # [EM CONSTRUÇÃO]
+    # Atualiza a página de avaliação de competências dos instrutores
     # --------------------------------------------------------------------------------------
-    def monitoring_production(self, instructors, page_title, start="2024-01-01", end="2024-03-31"):
+    def update_competency_assessment(self, instructors, page_title, start="2024-01-01", end="2024-03-31"):
+        skills = ["Dedicação", "Cumprimento de acordos", "Qualidade das entregas", "Velocidade", "Resposta aos feedbacks", "Flexibilidade", "Colaboração", "Comunicação", "Assiduidade"]
+
         print('>>> Obtendo as informações do database de tarefas...')
         database = self.notion.retrieve_database(self.database_tasks)
 
@@ -309,22 +311,66 @@ class GodsEye:
             if (start <= start_page <= end) or (start <= end_page <= end):
                 instructor = page['properties']['Instrutor(a)']['rich_text'][0]['text']['content']
                 if instructor in instructors:
-                    pages.append(page)
-        
+                    use_register = True
+                    for skill in skills:
+                        if page['properties'][skill]['select'] == None:
+                            use_register = False
+
+                    if use_register:
+                        pages.append({
+                            "Tarefa": {"title": [{"text": {"content": page['properties']['Tarefa']['title'][0]['text']['content']}}]},
+                            "Id": {"rich_text": [{"text": {"content": page['properties']['Id']['rich_text'][0]['text']['content']}}]},
+                            # "Produto": {"rich_text": [{"text": {"content": page['properties']['Produto']['rich_text'][0]['text']['content']}}]},
+                            # "Código do Produto": {"rich_text": [{"text": {"content": page['properties']['Código do Produto']['rich_text'][0]['text']['content']}}]},
+                            # "Título do Produto": {"rich_text": [{"text": {"content": page['properties']['Título do Produto']['rich_text'][0]['text']['content']}}]},
+                            # "Instrutor(a)": {"rich_text": [{"text": {"content": page['properties']['Instrutor(a)']['rich_text'][0]['text']['content']}}]},
+                            # "Atividade": {"rich_text": [{"text": {"content": page['properties']['Atividade']['rich_text'][0]['text']['content']}}]},
+                            "Dedicação": {"select": page['properties']['Dedicação']['select'] if page['properties']['Dedicação']['select'] == None else {'name': page['properties']['Dedicação']['select']['name']}},
+                            "Cumprimento de acordos": {"select": page['properties']['Cumprimento de acordos']['select'] if page['properties']['Cumprimento de acordos']['select'] == None else {'name': page['properties']['Cumprimento de acordos']['select']['name']}},
+                            "Qualidade das entregas": {"select": page['properties']['Qualidade das entregas']['select'] if page['properties']['Qualidade das entregas']['select'] == None else {'name': page['properties']['Qualidade das entregas']['select']['name']}},
+                            "Velocidade": {"select": page['properties']['Velocidade']['select'] if page['properties']['Velocidade']['select'] == None else {'name': page['properties']['Velocidade']['select']['name']}},
+                            "Resposta aos feedbacks": {"select": page['properties']['Resposta aos feedbacks']['select'] if page['properties']['Resposta aos feedbacks']['select'] == None else {'name': page['properties']['Resposta aos feedbacks']['select']['name']}},
+                            "Flexibilidade": {"select": page['properties']['Flexibilidade']['select'] if page['properties']['Flexibilidade']['select'] == None else {'name': page['properties']['Flexibilidade']['select']['name']}},
+                            "Colaboração": {"select": page['properties']['Colaboração']['select'] if page['properties']['Colaboração']['select'] == None else {'name': page['properties']['Colaboração']['select']['name']}},
+                            "Comunicação": {"select": page['properties']['Comunicação']['select'] if page['properties']['Comunicação']['select'] == None else {'name': page['properties']['Comunicação']['select']['name']}},
+                            "Assiduidade": {"select": page['properties']['Assiduidade']['select'] if page['properties']['Assiduidade']['select'] == None else {'name': page['properties']['Assiduidade']['select']['name']}},
+                        })
+
+        print('>>> Obtendo estatísticas...')
+        dict_skills = {}
+        for page in pages:
+            for skill in skills:
+                dict_skills.update({skill: []})
+
+        for page in pages:
+            for skill in skills:
+                dict_skills[skill].append(page[skill]['select']['name'])
+
+        dict_aux = {
+            "Tarefa": {"title": [{"text": {"content": "Avaliação final"}}]},
+            "Id": {"rich_text": [{"text": {"content": "Avaliação final"}}]},
+        }
+        for key, value in dict_skills.items():
+            counter = Counter(value)
+            mode = counter.most_common(1)[0][0]
+            dict_aux.update({key: {"select": {'name': mode}}})
+
+        pages.append(dict_aux)
+
         print('>>> Obtendo os IDs das páginas de acompanhamento dos instrutores...')
         user_pages = self.notion.retrieve_database(self.database_users)
         for user_page in user_pages:
             instructor = user_page['properties']['Nome']['rich_text'][0]['text']['content']
             if instructor in instructors:
                 print(f">>> Iniciando o carregamento da página de acompanhamento de produção do(a) instrutor(a) {instructor}")
-                response = self.notion.find_page_title(user_page['id'], "Acompanhamento da Produção")
+                response = self.notion.find_page_title(user_page['id'], "Avaliação de Competências")
                 child_page_id = ""
                 if not response[0]:
                     data_json = {
                         "parent": {"type": "page_id", "page_id": f"{user_page['id']}"},
                         "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/90cfa4a4-a1fc-4656-b708-8f610eab24ab.webp"}},
                         "icon": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/054a40da-bce6-4fbc-97ef-3001ae18bcf4.webp"}},
-                        "properties": {"title": {"title": [{"text": {"content": "Acompanhamento da Produção"}}]}}
+                        "properties": {"title": {"title": [{"text": {"content": "Avaliação de Competências"}}]}}
                     }
                     parent_page = self.notion.create_page(data_json)
                     data_json_child = {
@@ -335,8 +381,15 @@ class GodsEye:
                     }
                     child_page = self.notion.create_page(data_json_child)
                     child_page_id = child_page[1]['id']
-                    print('ID -> ', child_page_id)
-                    self.notion.create_database(utils.data_competency_assessment_create(child_page_id))
+                    response_create_database = self.notion.create_database(utils.data_competency_assessment_create(child_page_id))
+                    all_responses = []
+                    for page in pages:
+                        response = self.notion.create_page({
+                            "parent": {"type": "database_id", "database_id": f"{response_create_database[1]['id']}"},
+                            "properties": page
+                        })
+                        all_responses.append(response)
+
                 else:
                     child_page = self.notion.find_page_title(response[1]['id'], page_title)
                     if not child_page[0]:
@@ -348,21 +401,119 @@ class GodsEye:
                         }
                         child_page = self.notion.create_page(data_json_child)
                         child_page_id = child_page[1]['id']
-                        self.notion.create_database(utils.data_competency_assessment_create(child_page_id))
+                        response_create_database = self.notion.create_database(utils.data_competency_assessment_create(child_page_id))
+                        all_responses = []
+                        for page in pages:
+                            response = self.notion.create_page({
+                                "parent": {"type": "database_id", "database_id": f"{response_create_database[1]['id']}"},
+                                "properties": page
+                            })
+                            all_responses.append(response)
+
                     else:
-                        child_page_id = child_page[1]['id']
-                
-                print(">>> Carregando as avaliações de competências...")
+                        all_responses = []
+                        bd_id = self.notion.retrieve_block_children(child_page[1]['id'])[0]['id']
+                        database_competency_assessment = self.notion.retrieve_database(bd_id)
+                        database_competency_assessment = [item['properties']['Id']['rich_text'][0]['text']['content'] for item in database_competency_assessment]
+                        for page in pages:
+                            if page['Id']['rich_text'][0]['text']['content'] not in database_competency_assessment:
+                                response = self.notion.create_page({
+                                    "parent": {"type": "database_id", "database_id": f"{bd_id}"},
+                                    "properties": page
+                                })
+                                all_responses.append(response)
 
-                print(child_page_id)
+        return all_responses
 
-        # for page in database:
-        #     if page['id'] == "3d5506e0-fc37-43a7-8efb-c4ce0463c0fc":
-        #         print(json.dumps(page, indent=4, sort_keys=True, ensure_ascii=False))
+    # --------------------------------------------------------------------------------------
+    # Atualiza a página de conteúdos produzidos por instrutor
+    # --------------------------------------------------------------------------------------
+    def update_produced_content(self, instructors):
+        print('>>> Obtendo as informações do database de tarefas...')
+        database = self.notion.retrieve_database(self.database_tasks)
+ 
+        print('>>> Obtendo os IDs das páginas de acompanhamento dos instrutores...')
+        user_pages = self.notion.retrieve_database(self.database_users)
 
+        print('>>> Obtendo apenas os conteúdo finalizados...')
+        for instructor in instructors:
+            pages = []
+            products = []
+            for user_page in user_pages:
+                if instructor == user_page['properties']['Nome']['rich_text'][0]['text']['content']:
+                    user_page_id = user_page['id']
 
-        return None
+            for page in database:
+                if instructor == page['properties']['Instrutor(a)']['rich_text'][0]['text']['content']:
+                    pages.append(page)
+                    products.append(page['properties']['Título do Produto']['rich_text'][0]['text']['content'])
+            products = list(set(products))
 
+            for page in pages:
+                for product in products:
+                    if page['properties']['Título do Produto']['rich_text'][0]['text']['content'] == product:
+                        if page['properties']['Status']['select']['name'] != 'Finalizada':
+                            products.remove(product)
+
+            produced_content = []
+            for product in products:
+                periods = []
+                time = []
+                product_type = ""
+                product_code = ""
+                for page in pages:
+                    if page['properties']['Título do Produto']['rich_text'][0]['text']['content'] == product:
+                        periods.append(page['properties']['Período Realizado']['date']['start'])
+                        periods.append(page['properties']['Período Realizado']['date']['end'])
+                        time.append(page['properties']['Tempo Gasto (em Dias)']['number'])
+                        product_type = page['properties']['Produto']['rich_text'][0]['text']['content']
+                        product_code = page['properties']['Código do Produto']['rich_text'][0]['text']['content']
+                produced_content.append({
+                    "Produto": {"rich_text": [{"text": {"content": product_type}}]},
+                    "Código do Produto": {"rich_text": [{"text": {"content": product_code}}]},
+                    "Título do Produto": {"title": [{"text": {"content": product}}]},
+                    "Instrutor(a)": {"rich_text": [{"text": {"content": instructor}}]},
+                    "Período de Produção": {"date": {"start": list(utils.min_max_dates(periods))[0], "end": list(utils.min_max_dates(periods))[1]}},
+                    "Tempo de Produção (em Dias)": {"number": sum(time)}
+                })
+
+            print(f">>> Iniciando o carregamento da página de conteúdos produzidos do(a) instrutor(a) {instructor}")
+            response = self.notion.find_page_title(user_page_id, "Conteúdos Produzidos")
+            child_page_id = ""
+            if not response[0]:
+                data_json = {
+                    "parent": {"type": "page_id", "page_id": f"{user_page_id}"},
+                    "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/90cfa4a4-a1fc-4656-b708-8f610eab24ab.webp"}},
+                    "icon": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/054a40da-bce6-4fbc-97ef-3001ae18bcf4.webp"}},
+                    "properties": {"title": {"title": [{"text": {"content": "Conteúdos Produzidos"}}]}}
+                }
+                produced_content_page = self.notion.create_page(data_json)
+                response_create_database = self.notion.create_database(utils.data_produced_content_create(produced_content_page[1]['id']))
+                all_responses = []
+                for item in produced_content:
+                    response = self.notion.create_page({
+                        "parent": {"type": "database_id", "database_id": f"{response_create_database[1]['id']}"},
+                        "properties": item
+                    })
+                    all_responses.append(response)
+
+            else:
+                all_responses = []
+                bd_id = self.notion.retrieve_block_children(response[1]['id'])[0]['id']
+                database_produced_content = self.notion.retrieve_database(bd_id)
+                database_produced_content = [item['properties']['Título do Produto']['title'][0]['text']['content'] for item in database_produced_content]
+                for item in produced_content:
+                    if item['Título do Produto']['title'][0]['text']['content'] not in database_produced_content:
+                        response = self.notion.create_page({
+                            "parent": {"type": "database_id", "database_id": f"{bd_id}"},
+                            "properties": item
+                        })
+                        all_responses.append(response)
+
+        return all_responses
+
+    # --------------------------------------------------------------------------------------
+    # Cria estatísticas sobre a produção de conteúdo
     # --------------------------------------------------------------------------------------
     def statistics(self, instructors, start="2024-01-01", end="2024-03-31"):
         print('>>> Obtendo as informações do database de tarefas...')
@@ -404,11 +555,12 @@ if __name__ == '__main__':
     gods_eye = GodsEye()
     response = ""
     instructors=["Afonso", "Allan", "Ana Duarte", "Bia", "Danielle", "Igor", "João", "Marcelo", "Mirla", "Val"]
+    response = gods_eye.update_competency_assessment(instructors=["Val"], page_title="1º Trimestre 2024", start="2024-01-01", end="2024-03-31")
+    # response = gods_eye.update_produced_content(instructors)
     # response = gods_eye.add_competency_assessment()
     # response = gods_eye.update_tasks_database()
     # response = gods_eye.backup_tasks_database()
     # gods_eye.restore_tasks_database()
-    # response = gods_eye.monitoring_production(instructors=["João"], page_title="1º Trimestre 2024", start="2024-01-01", end="2024-03-31")
     # response = gods_eye.statistics(instructors)
     
     # response = gods_eye.create_quarterly_report(["João", "Marcelo"], start="2024-01-01", end="2024-03-31")

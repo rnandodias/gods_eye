@@ -148,9 +148,9 @@ class GoogleCalendarAPI:
                 ).execute()
                 events = events_result.get('items', [])
 
-                if not events:
-                    print('Nenhum evento próximo encontrado.')
-                    return
+                # if not events:
+                #     print('Nenhum evento próximo encontrado.')
+                #     return
                 
                 for event in events:
                     agendas.append(utils.configure_updated_events(event, instructor))
@@ -232,75 +232,79 @@ class GoogleCalendarAPI:
 if __name__ == '__main__':
     calendar_api = GoogleCalendarAPI()
 
-#     # --------------------------------------------------------------------------------------
-#     # Tentando a criação do planejamento de 2024/02
-#     instructors=["Afonso", "Allan", "Ana Duarte", "Bia", "Danielle", "Igor", "João", "Marcelo", "Mirla", "Val", "Daniel", "David", "Rodrigo"]
-#     priorities=[
-#         ('Bia', 'Storytelling com dados'),
-#         ('Bia', 'Engenharia reversa com o Power Architect'),
-#         ('Bia', '3811 - Modelagem de dados: Modelo físico'),
-#         ('Bia', 'O que é normalização?'),
-#         ('Igor', 'Qualidade de dados na Cloud'),
-#         ('Igor', 'Dicionário de Dados'),
-#         ('Igor', '3809 - Modelagem de dados: Modelo lógico'),
-#         ('Igor', 'Modelo lógico x Modelo físico'),
-#         ('Igor', 'O que é e para que serve a modelagem de dados?'),
-#         ('Allan', '3774 - TensorFlow Keras: Completando textos com redes LSTM'),
-#         ('Allan', '3773 - TensorFlow Keras: Classificando imagens com redes convolucionais'),
-#         ('Allan', 'Métricas de avaliação para clusterização'),
-#         ('Marcelo', 'CRAN, R forge e Git hub: Aonde encontrar meu pacote?'),
-#         ('Marcelo', 'Governança de dados em um Data Lake'),
-#         ('Marcelo', 'Séries temporais e suas aplicações'),
-#         ('Marcelo', 'Como a correlação é utilizada na prática'),
-#         ('Marcelo', 'Identação e boas práticas em medidas'),
-#         ('Marcelo', '3777 - Power BI: Construindo cálculos com Dax'),
-#         ('Marcelo', 'Power BI: DAX Cheat Sheet'),
-#         ('Marcelo', 'Tipos de dados no Power BI'),
-#         ('Marcelo', 'Como criar sua conta do Power BI (Colocar dentro do curso)'),
-#         ('Val', 'Boosting'),
-#         ('Val', '3765 - NLP: aprendendo processamento de linguagem natural'),
-#         ('Val', '3768 - Regressão: modelos boosting'),
-#         ('Mirla', 'Árvores para Classificação e Regressão'),
-#         ('Mirla', 'PLN: o que é Processamento de Linguagem Natural?'),
-#         ('Mirla', '3764 - Clusterização: lidando com dados sem rótulo'),
-#         ('Mirla', '3767 - Regressão: árvores de regressão'),
-#         ('Afonso', '3766 - Regressão Linear: técnicas avançadas de modelagem'),
-#         ('Afonso', 'Carreiras em Dados [2024-06-14]'),
-#         ('Afonso', 'Análise de Dados [2024-05-03]'),
-#         ('Ana Duarte', 'Importando uma planilha do Excel e tratando células mescladas'),
-#         ('Ana Duarte', 'Alinhamento da versão'),
-#         ('João', '9208 - Métricas de regressão'),
-#         ('João', '3769 - Regressão: Análise de Séries temporais'),
-#         ('João', 'Quais os algoritmos de clusterização e quando utilizar?'),
-# ]
+    # response = calendar_api.get_updated_events()
+    # print(json.dumps(response, indent=4, sort_keys=True, ensure_ascii=False))
 
-#     response = calendar_api.create_quarterly_planning_events_json(instructors=instructors, priorities=priorities)
-#     lista=[]
-#     for item in response:
-#         for i in response[item]:
-#             for j in i:
-#                 # print(i)
-#                 # if j['summary'].split('-')[-1] in [' Atividades', ' Escrita', ' Gravação das aulas', ' Gravação']:
-#                 if j['summary'].split('-')[-1] in [' Gravação das aulas']:
-#                     lista.append((j['summary'], j['end']['date']))
+    # --------------------------------------------------------------------------------------
+    # Tentando a criação do planejamento de 2024/02
+    # instructors=["Afonso", "Allan", "Ana Duarte", "Bia", "Danielle", "Igor", "João", "Marcelo", "Mirla", "Val", "Daniel", "David", "Rodrigo"]
+    instructors=["Afonso"]
+    priorities=[
+        ('Bia', 'Storytelling com dados'),
+        ('Bia', 'Engenharia reversa com o Power Architect'),
+        ('Bia', '3811 - Modelagem de dados: Modelo físico'),
+        ('Bia', 'O que é normalização?'),
+        ('Igor', 'Qualidade de dados na Cloud'),
+        ('Igor', 'Dicionário de Dados'),
+        ('Igor', '3809 - Modelagem de dados: Modelo lógico'),
+        ('Igor', 'Modelo lógico x Modelo físico'),
+        ('Igor', 'O que é e para que serve a modelagem de dados?'),
+        ('Allan', '3774 - TensorFlow Keras: Completando textos com redes LSTM'),
+        ('Allan', '3773 - TensorFlow Keras: Classificando imagens com redes convolucionais'),
+        ('Allan', 'Métricas de avaliação para clusterização'),
+        ('Marcelo', 'CRAN, R forge e Git hub: Aonde encontrar meu pacote?'),
+        ('Marcelo', 'Governança de dados em um Data Lake'),
+        ('Marcelo', 'Séries temporais e suas aplicações'),
+        ('Marcelo', 'Como a correlação é utilizada na prática'),
+        ('Marcelo', 'Identação e boas práticas em medidas'),
+        ('Marcelo', '3777 - Power BI: Construindo cálculos com Dax'),
+        ('Marcelo', 'Power BI: DAX Cheat Sheet'),
+        ('Marcelo', 'Tipos de dados no Power BI'),
+        ('Marcelo', 'Como criar sua conta do Power BI (Colocar dentro do curso)'),
+        ('Val', 'Boosting'),
+        ('Val', '3765 - NLP: aprendendo processamento de linguagem natural'),
+        ('Val', '3768 - Regressão: modelos boosting'),
+        ('Mirla', 'Árvores para Classificação e Regressão'),
+        ('Mirla', 'PLN: o que é Processamento de Linguagem Natural?'),
+        ('Mirla', '3764 - Clusterização: lidando com dados sem rótulo'),
+        ('Mirla', '3767 - Regressão: árvores de regressão'),
+        ('Afonso', '3766 - Regressão Linear: técnicas avançadas de modelagem'),
+        ('Afonso', 'Carreiras em Dados [2024-06-14]'),
+        ('Afonso', 'Análise de Dados [2024-05-03]'),
+        ('Ana Duarte', 'Importando uma planilha do Excel e tratando células mescladas'),
+        ('Ana Duarte', 'Alinhamento da versão'),
+        ('João', '9208 - Métricas de regressão'),
+        ('João', '3769 - Regressão: Análise de Séries temporais'),
+        ('João', 'Quais os algoritmos de clusterização e quando utilizar?'),
+]
 
-#     df = pd.DataFrame(lista, columns=['Atividade', 'Data de Término'])
-#     df['Data de Término'] = pd.to_datetime(df['Data de Término'])
-#     df['Mês'] = df['Data de Término'].dt.strftime('%B')
-#     df['Semana'] = df['Data de Término'].dt.isocalendar().week
-#     sumario_semanal = df.groupby(['Mês', 'Semana']).size().reset_index(name='Total de Atividades')
-#     meses_pt = {
-#         'January': 'Janeiro', 'February': 'Fevereiro', 'March': 'Março',
-#         'April': 'Abril', 'May': 'Maio', 'June': 'Junho',
-#         'July': 'Julho', 'August': 'Agosto', 'September': 'Setembro',
-#         'October': 'Outubro', 'November': 'Novembro', 'December': 'Dezembro'
-#     }
-#     sumario_semanal['Mês'] = sumario_semanal['Mês'].map(meses_pt)
-#     sumario_semanal.sort_values(by='Semana', ascending=True, inplace=True)
-#     print(sumario_semanal)
-#     calendar_api.statistics()
-#     utils.create_timeline(response, "Planejamento 2 Tri 2024")
-#     # --------------------------------------------------------------------------------------
+    response = calendar_api.create_quarterly_planning_events_json(instructors=instructors, priorities=priorities)
+    lista=[]
+    for item in response:
+        for i in response[item]:
+            for j in i:
+                # print(i)
+                # if j['summary'].split('-')[-1] in [' Atividades', ' Escrita', ' Gravação das aulas', ' Gravação']:
+                if j['summary'].split('-')[-1] in [' Gravação das aulas']:
+                    lista.append((j['summary'], j['end']['date']))
+
+    df = pd.DataFrame(lista, columns=['Atividade', 'Data de Término'])
+    df['Data de Término'] = pd.to_datetime(df['Data de Término'])
+    df['Mês'] = df['Data de Término'].dt.strftime('%B')
+    df['Semana'] = df['Data de Término'].dt.isocalendar().week
+    sumario_semanal = df.groupby(['Mês', 'Semana']).size().reset_index(name='Total de Atividades')
+    meses_pt = {
+        'January': 'Janeiro', 'February': 'Fevereiro', 'March': 'Março',
+        'April': 'Abril', 'May': 'Maio', 'June': 'Junho',
+        'July': 'Julho', 'August': 'Agosto', 'September': 'Setembro',
+        'October': 'Outubro', 'November': 'Novembro', 'December': 'Dezembro'
+    }
+    sumario_semanal['Mês'] = sumario_semanal['Mês'].map(meses_pt)
+    sumario_semanal.sort_values(by='Semana', ascending=True, inplace=True)
+    print(sumario_semanal)
+    calendar_api.statistics()
+    utils.create_timeline(response, "Planejamento 2 Tri 2024")
+    # --------------------------------------------------------------------------------------
     
     # print(json.dumps(response['João'], indent=4, sort_keys=True, ensure_ascii=False))
     # print(json.dumps(response, indent=4, sort_keys=True, ensure_ascii=False))

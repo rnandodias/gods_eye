@@ -58,7 +58,10 @@ class NotionAPI:
             raise Exception(f"Erro ao buscar página: {response.status_code}\n{response.text}")
         all_results = []
         data = response.json()
-        all_results.extend(data["results"])
+        try:
+            all_results.extend(data["results"])
+        except:
+            all_results.extend(data)
 
         return all_results
 

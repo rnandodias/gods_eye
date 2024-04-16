@@ -2,8 +2,8 @@ from google_calendar.calendar_api import GoogleCalendarAPI
 
 calendar_api = GoogleCalendarAPI()
 
-# instructors=["Afonso", "Allan", "Ana Duarte", "Bia", "Danielle", "Igor", "João", "Marcelo", "Mirla", "Val"]
-instructors=["João"]
+# instructors=["Afonso", "Allan", "Ana Duarte", "Bia", "Danielle", "Igor", "João", "Marcelo", "Mirla", "Val", "Daniel", "David", "Rodrigo"]
+instructors=["Afonso"]
 priorities=[
     ('Bia', 'Storytelling com dados'),
     ('Bia', 'Engenharia reversa com o Power Architect'),
