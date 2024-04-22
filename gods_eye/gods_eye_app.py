@@ -17,6 +17,9 @@ class GodsEye:
         load_dotenv()
         self.database_tasks = os.getenv('DATABASE_TASKS')
         self.database_users = os.getenv('DATABASE_USERS')
+        self.page_results = os.getenv('PAGE_RESULTS')
+        self.mapping_instructos = json.loads(os.getenv('MAPPING_INSTRUCTORS'))
+        self.mapping_instructos_inverted = {value: key for key, value in self.mapping_instructos.items()}
         self.calendar = GoogleCalendarAPI()
         self.notion = NotionAPI()
         self.mongo_manager = MongoDBManager()
@@ -216,7 +219,7 @@ class GodsEye:
     # --------------------------------------------------------------------------------------
     # Cria o relatório de avaliação de desempenho trimestral dos instrutores
     # --------------------------------------------------------------------------------------
-    def create_quarterly_report(self, instructors, start="2024-01-01", end="2024-03-31"):
+    def create_quarterly_report(self, instructors, start="2024-01-01", end="2024-03-31", page_title="1º Trimestre 2024"):
         print('>>> Obtendo os IDs das páginas do database no Notion...')
         database = self.notion.retrieve_database(self.database_tasks)
 
@@ -285,13 +288,162 @@ class GodsEye:
 
             data_json = {
                 "parent": {"type": "page_id", "page_id": f"{id}"},
-                "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/90cfa4a4-a1fc-4656-b708-8f610eab24ab.webp"}},
-                "icon": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/054a40da-bce6-4fbc-97ef-3001ae18bcf4.webp"}},
-                "properties": {"title": {"title": [{"text": {"content": "1º Trimestre 2024"}}]}}
+                "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/AvDs.jpg"}},
+                "icon": {"type": "external", "external": {"url": "https://www.notion.so/icons/chart-line_green.svg"}},
+                "properties": {"title": {"title": [{"text": {"content": page_title}}]}}
             }
             _, page_content = self.notion.create_page(data_json)
             self.notion.append_block_children(page_content['id'], data)
 
+    # --------------------------------------------------------------------------------------
+    # Cria o relatório de resultados trimestrais dos instrutores
+    # --------------------------------------------------------------------------------------
+    def create_quarterly_results_report(self, instructors, start="2024-01-01", end="2024-03-31", page_title="1º Trimestre 2024"):
+        print('>>> Criando a página para os resultados trimestrais...')
+        data_json = {
+            "parent": {"type": "page_id", "page_id": self.page_results},
+            "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/resultados/Resultados_capa_01.jpg"}},
+            "icon": {"type": "external", "external": {"url": "https://www.notion.so/icons/activity_green.svg"}},
+            "properties": {"title": {"title": [{"text": {"content": page_title}}]}}
+        }
+        _, page_content = self.notion.create_page(data_json)
+
+        skills = ["Dedicação", "Cumprimento de acordos", "Qualidade das entregas", "Velocidade", "Resposta aos feedbacks", "Flexibilidade", "Colaboração", "Comunicação", "Assiduidade"]
+
+        print('>>> Obtendo as informações do database de tarefas...')
+        database = self.notion.retrieve_database(self.database_tasks)
+
+        print('>>> Aplicando filtro de período...')
+        results_skills = []
+        for instructor in instructors:
+            pages = []
+            for page in database:
+                start_page = datetime.strptime(page["properties"]["Período Realizado"]["date"]["start"], "%Y-%m-%d")
+                end_page = datetime.strptime(page["properties"]["Período Realizado"]["date"]["end"], "%Y-%m-%d")
+                if (datetime.strptime(start, "%Y-%m-%d") <= start_page <= datetime.strptime(end, "%Y-%m-%d")) or (datetime.strptime(start, "%Y-%m-%d") <= end_page <= datetime.strptime(end, "%Y-%m-%d")):
+                    if instructor == page['properties']['Instrutor(a)']['rich_text'][0]['text']['content']:
+                        use_register = True
+                        for skill in skills:
+                            if page['properties'][skill]['select'] == None:
+                                use_register = False
+
+                        if use_register:
+                            pages.append({
+                                "Tarefa": {"title": [{"text": {"content": page['properties']['Tarefa']['title'][0]['text']['content']}}]},
+                                "Id": {"rich_text": [{"text": {"content": page['properties']['Id']['rich_text'][0]['text']['content']}}]},
+                                "Dedicação": {"select": page['properties']['Dedicação']['select'] if page['properties']['Dedicação']['select'] == None else {'name': page['properties']['Dedicação']['select']['name']}},
+                                "Cumprimento de acordos": {"select": page['properties']['Cumprimento de acordos']['select'] if page['properties']['Cumprimento de acordos']['select'] == None else {'name': page['properties']['Cumprimento de acordos']['select']['name']}},
+                                "Qualidade das entregas": {"select": page['properties']['Qualidade das entregas']['select'] if page['properties']['Qualidade das entregas']['select'] == None else {'name': page['properties']['Qualidade das entregas']['select']['name']}},
+                                "Velocidade": {"select": page['properties']['Velocidade']['select'] if page['properties']['Velocidade']['select'] == None else {'name': page['properties']['Velocidade']['select']['name']}},
+                                "Resposta aos feedbacks": {"select": page['properties']['Resposta aos feedbacks']['select'] if page['properties']['Resposta aos feedbacks']['select'] == None else {'name': page['properties']['Resposta aos feedbacks']['select']['name']}},
+                                "Flexibilidade": {"select": page['properties']['Flexibilidade']['select'] if page['properties']['Flexibilidade']['select'] == None else {'name': page['properties']['Flexibilidade']['select']['name']}},
+                                "Colaboração": {"select": page['properties']['Colaboração']['select'] if page['properties']['Colaboração']['select'] == None else {'name': page['properties']['Colaboração']['select']['name']}},
+                                "Comunicação": {"select": page['properties']['Comunicação']['select'] if page['properties']['Comunicação']['select'] == None else {'name': page['properties']['Comunicação']['select']['name']}},
+                                "Assiduidade": {"select": page['properties']['Assiduidade']['select'] if page['properties']['Assiduidade']['select'] == None else {'name': page['properties']['Assiduidade']['select']['name']}},
+                            })
+
+            print(f'>>> Obtendo estatísticas para o(a) instrutor(a) {instructor}...')
+            dict_skills = {}
+            for page in pages:
+                for skill in skills:
+                    dict_skills.update({skill: []})
+
+            for page in pages:
+                for skill in skills:
+                    dict_skills[skill].append(page[skill]['select']['name'])
+
+            dict_aux = {
+                "Instrutor(a)": {"title": [{"text": {"content": instructor}}]},
+                # "Id": {"rich_text": [{"text": {"content": instructor}}]},
+            }
+            for key, value in dict_skills.items():
+                counter = Counter(value)
+                max_freq = max(counter.values())
+                modes = [item for item, freq in counter.items() if freq == max_freq]
+                if len(modes) > 1:
+                    numeros = [int(item.split('.')[0]) for item in modes]
+                    menor_numero = min(numeros)
+                    mode = next(item for item in modes if item.startswith(f"{menor_numero}."))
+                else:
+                    mode = modes[0]
+                # mode = counter.most_common(1)[0][0]
+                # print(counter.most_common(1))
+                dict_aux.update({key: {"select": {'name': mode}}})
+
+            results_skills.append(dict_aux)
+
+        print(f'>>> Obtendo estatísticas para a Escola de Dados...')
+        dict_skills = {}
+        for page in results_skills:
+            for skill in skills:
+                dict_skills.update({skill: []})
+
+        for page in results_skills:
+            for skill in skills:
+                dict_skills[skill].append(page[skill]['select']['name'])
+
+        dict_aux = {
+            "Instrutor(a)": {"title": [{"text": {"content": "Escola de Dados"}}]},
+            # "Id": {"rich_text": [{"text": {"content": instructor}}]},
+        }
+        for key, value in dict_skills.items():
+            counter = Counter(value)
+            max_freq = max(counter.values())
+            modes = [item for item, freq in counter.items() if freq == max_freq]
+            if len(modes) > 1:
+                numeros = [int(item.split('.')[0]) for item in modes]
+                menor_numero = min(numeros)
+                mode = next(item for item in modes if item.startswith(f"{menor_numero}."))
+            else:
+                mode = modes[0]
+            # mode = counter.most_common(1)[0][0]
+            # print(counter.most_common(1))
+            dict_aux.update({key: {"select": {'name': mode}}})
+
+        results_skills.append(dict_aux)
+
+        response_create_database = self.notion.create_database(utils.data_results_competency_assessment_create(page_content['id']))
+        all_responses_step_A = []
+        for result_skills in reversed(results_skills):
+            instructor = result_skills["Instrutor(a)"]["title"][0]["text"]["content"]
+            
+            if instructor == "Escola de Dados":
+                data_json = {
+                    "parent": {"type": "database_id", "database_id": response_create_database[1]['id']},
+                    "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/resultados/escola_de_dados/Escola_de_dados_01.jpg"}},
+                    "icon": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/resultados/escola_de_dados/icon.png"}},
+                    "properties": result_skills
+                }
+            else:
+                data_json = {
+                    "parent": {"type": "database_id", "database_id": response_create_database[1]['id']},
+                    "cover": {"type": "external", "external": {"url": f"https://storage.googleapis.com/alura-images/instrutores/{self.mapping_instructos_inverted[instructor].replace(' ', '%20')}.png"}},
+                    "icon": {"type": "external", "external": {"url": f"https://storage.googleapis.com/alura-images/instrutores/{self.mapping_instructos_inverted[instructor].replace(' ', '%20')}.png"}},
+                    "properties": result_skills
+                }
+
+            response = self.notion.create_page(data_json)
+            all_responses_step_A.append(response)
+
+        response_create_database = self.notion.create_database(utils.data_statistics_planning_create(page_content['id']))
+        all_responses_step_B = []
+        table_step_B = self.statistics(instructors, start=start, end=end)
+        for result_skills in reversed(table_step_B):
+            instructor = result_skills["Instrutor(a)"]["title"][0]["text"]["content"]
+            data_json = {
+                "parent": {"type": "database_id", "database_id": response_create_database[1]['id']},
+                "cover": {"type": "external", "external": {"url": f"https://storage.googleapis.com/alura-images/instrutores/{self.mapping_instructos_inverted[instructor].replace(' ', '%20')}.png"}},
+                "icon": {"type": "external", "external": {"url": f"https://storage.googleapis.com/alura-images/instrutores/{self.mapping_instructos_inverted[instructor].replace(' ', '%20')}.png"}},
+                "properties": result_skills
+            }
+
+            response = self.notion.create_page(data_json)
+            all_responses_step_B.append(response)
+
+        
+
+        return all_responses_step_A, all_responses_step_B
+    
     # --------------------------------------------------------------------------------------
     # Atualiza a página de avaliação de competências dos instrutores
     # --------------------------------------------------------------------------------------
@@ -302,101 +454,85 @@ class GodsEye:
         database = self.notion.retrieve_database(self.database_tasks)
 
         print('>>> Aplicando filtro de período...')
-        pages = []
-        start = datetime.strptime(start, "%Y-%m-%d")
-        end = datetime.strptime(end, "%Y-%m-%d")
-        for page in database:
-            start_page = datetime.strptime(page["properties"]["Período Realizado"]["date"]["start"], "%Y-%m-%d")
-            end_page = datetime.strptime(page["properties"]["Período Realizado"]["date"]["end"], "%Y-%m-%d")
-            if (start <= start_page <= end) or (start <= end_page <= end):
-                instructor = page['properties']['Instrutor(a)']['rich_text'][0]['text']['content']
-                if instructor in instructors:
-                    use_register = True
-                    for skill in skills:
-                        if page['properties'][skill]['select'] == None:
-                            use_register = False
+        for instructor in instructors:
+            pages = []
+            for page in database:
+                start_page = datetime.strptime(page["properties"]["Período Realizado"]["date"]["start"], "%Y-%m-%d")
+                end_page = datetime.strptime(page["properties"]["Período Realizado"]["date"]["end"], "%Y-%m-%d")
+                if (datetime.strptime(start, "%Y-%m-%d") <= start_page <= datetime.strptime(end, "%Y-%m-%d")) or (datetime.strptime(start, "%Y-%m-%d") <= end_page <= datetime.strptime(end, "%Y-%m-%d")):
+                    if instructor == page['properties']['Instrutor(a)']['rich_text'][0]['text']['content']:
+                        use_register = True
+                        for skill in skills:
+                            if page['properties'][skill]['select'] == None:
+                                use_register = False
 
-                    if use_register:
-                        pages.append({
-                            "Tarefa": {"title": [{"text": {"content": page['properties']['Tarefa']['title'][0]['text']['content']}}]},
-                            "Id": {"rich_text": [{"text": {"content": page['properties']['Id']['rich_text'][0]['text']['content']}}]},
-                            # "Produto": {"rich_text": [{"text": {"content": page['properties']['Produto']['rich_text'][0]['text']['content']}}]},
-                            # "Código do Produto": {"rich_text": [{"text": {"content": page['properties']['Código do Produto']['rich_text'][0]['text']['content']}}]},
-                            # "Título do Produto": {"rich_text": [{"text": {"content": page['properties']['Título do Produto']['rich_text'][0]['text']['content']}}]},
-                            # "Instrutor(a)": {"rich_text": [{"text": {"content": page['properties']['Instrutor(a)']['rich_text'][0]['text']['content']}}]},
-                            # "Atividade": {"rich_text": [{"text": {"content": page['properties']['Atividade']['rich_text'][0]['text']['content']}}]},
-                            "Dedicação": {"select": page['properties']['Dedicação']['select'] if page['properties']['Dedicação']['select'] == None else {'name': page['properties']['Dedicação']['select']['name']}},
-                            "Cumprimento de acordos": {"select": page['properties']['Cumprimento de acordos']['select'] if page['properties']['Cumprimento de acordos']['select'] == None else {'name': page['properties']['Cumprimento de acordos']['select']['name']}},
-                            "Qualidade das entregas": {"select": page['properties']['Qualidade das entregas']['select'] if page['properties']['Qualidade das entregas']['select'] == None else {'name': page['properties']['Qualidade das entregas']['select']['name']}},
-                            "Velocidade": {"select": page['properties']['Velocidade']['select'] if page['properties']['Velocidade']['select'] == None else {'name': page['properties']['Velocidade']['select']['name']}},
-                            "Resposta aos feedbacks": {"select": page['properties']['Resposta aos feedbacks']['select'] if page['properties']['Resposta aos feedbacks']['select'] == None else {'name': page['properties']['Resposta aos feedbacks']['select']['name']}},
-                            "Flexibilidade": {"select": page['properties']['Flexibilidade']['select'] if page['properties']['Flexibilidade']['select'] == None else {'name': page['properties']['Flexibilidade']['select']['name']}},
-                            "Colaboração": {"select": page['properties']['Colaboração']['select'] if page['properties']['Colaboração']['select'] == None else {'name': page['properties']['Colaboração']['select']['name']}},
-                            "Comunicação": {"select": page['properties']['Comunicação']['select'] if page['properties']['Comunicação']['select'] == None else {'name': page['properties']['Comunicação']['select']['name']}},
-                            "Assiduidade": {"select": page['properties']['Assiduidade']['select'] if page['properties']['Assiduidade']['select'] == None else {'name': page['properties']['Assiduidade']['select']['name']}},
-                        })
+                        if use_register:
+                            pages.append({
+                                "Tarefa": {"title": [{"text": {"content": page['properties']['Tarefa']['title'][0]['text']['content']}}]},
+                                "Id": {"rich_text": [{"text": {"content": page['properties']['Id']['rich_text'][0]['text']['content']}}]},
+                                # "Produto": {"rich_text": [{"text": {"content": page['properties']['Produto']['rich_text'][0]['text']['content']}}]},
+                                # "Código do Produto": {"rich_text": [{"text": {"content": page['properties']['Código do Produto']['rich_text'][0]['text']['content']}}]},
+                                # "Título do Produto": {"rich_text": [{"text": {"content": page['properties']['Título do Produto']['rich_text'][0]['text']['content']}}]},
+                                # "Instrutor(a)": {"rich_text": [{"text": {"content": page['properties']['Instrutor(a)']['rich_text'][0]['text']['content']}}]},
+                                # "Atividade": {"rich_text": [{"text": {"content": page['properties']['Atividade']['rich_text'][0]['text']['content']}}]},
+                                "Dedicação": {"select": page['properties']['Dedicação']['select'] if page['properties']['Dedicação']['select'] == None else {'name': page['properties']['Dedicação']['select']['name']}},
+                                "Cumprimento de acordos": {"select": page['properties']['Cumprimento de acordos']['select'] if page['properties']['Cumprimento de acordos']['select'] == None else {'name': page['properties']['Cumprimento de acordos']['select']['name']}},
+                                "Qualidade das entregas": {"select": page['properties']['Qualidade das entregas']['select'] if page['properties']['Qualidade das entregas']['select'] == None else {'name': page['properties']['Qualidade das entregas']['select']['name']}},
+                                "Velocidade": {"select": page['properties']['Velocidade']['select'] if page['properties']['Velocidade']['select'] == None else {'name': page['properties']['Velocidade']['select']['name']}},
+                                "Resposta aos feedbacks": {"select": page['properties']['Resposta aos feedbacks']['select'] if page['properties']['Resposta aos feedbacks']['select'] == None else {'name': page['properties']['Resposta aos feedbacks']['select']['name']}},
+                                "Flexibilidade": {"select": page['properties']['Flexibilidade']['select'] if page['properties']['Flexibilidade']['select'] == None else {'name': page['properties']['Flexibilidade']['select']['name']}},
+                                "Colaboração": {"select": page['properties']['Colaboração']['select'] if page['properties']['Colaboração']['select'] == None else {'name': page['properties']['Colaboração']['select']['name']}},
+                                "Comunicação": {"select": page['properties']['Comunicação']['select'] if page['properties']['Comunicação']['select'] == None else {'name': page['properties']['Comunicação']['select']['name']}},
+                                "Assiduidade": {"select": page['properties']['Assiduidade']['select'] if page['properties']['Assiduidade']['select'] == None else {'name': page['properties']['Assiduidade']['select']['name']}},
+                            })
 
-        print('>>> Obtendo estatísticas...')
-        dict_skills = {}
-        for page in pages:
-            for skill in skills:
-                dict_skills.update({skill: []})
+            print('>>> Obtendo estatísticas...')
+            dict_skills = {}
+            for page in pages:
+                for skill in skills:
+                    dict_skills.update({skill: []})
 
-        for page in pages:
-            for skill in skills:
-                dict_skills[skill].append(page[skill]['select']['name'])
+            for page in pages:
+                for skill in skills:
+                    dict_skills[skill].append(page[skill]['select']['name'])
 
-        dict_aux = {
-            "Tarefa": {"title": [{"text": {"content": "Avaliação final"}}]},
-            "Id": {"rich_text": [{"text": {"content": "Avaliação final"}}]},
-        }
-        for key, value in dict_skills.items():
-            counter = Counter(value)
-            mode = counter.most_common(1)[0][0]
-            dict_aux.update({key: {"select": {'name': mode}}})
-
-        pages.append(dict_aux)
-
-        print('>>> Obtendo os IDs das páginas de acompanhamento dos instrutores...')
-        user_pages = self.notion.retrieve_database(self.database_users)
-        for user_page in user_pages:
-            instructor = user_page['properties']['Nome']['rich_text'][0]['text']['content']
-            if instructor in instructors:
-                print(f">>> Iniciando o carregamento da página de acompanhamento de produção do(a) instrutor(a) {instructor}")
-                response = self.notion.find_page_title(user_page['id'], "Avaliação de Competências")
-                child_page_id = ""
-                if not response[0]:
-                    data_json = {
-                        "parent": {"type": "page_id", "page_id": f"{user_page['id']}"},
-                        "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/90cfa4a4-a1fc-4656-b708-8f610eab24ab.webp"}},
-                        "icon": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/054a40da-bce6-4fbc-97ef-3001ae18bcf4.webp"}},
-                        "properties": {"title": {"title": [{"text": {"content": "Avaliação de Competências"}}]}}
-                    }
-                    parent_page = self.notion.create_page(data_json)
-                    data_json_child = {
-                        "parent": {"type": "page_id", "page_id": f"{parent_page[1]['id']}"},
-                        "icon": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/f4dbddce-7a06-4c68-b839-b4c5cd3df407.webp"}},
-                        "cover": {"external": {"url": "https://storage.googleapis.com/alura-images/avd/45fb1024-d3fd-4462-8837-765aa69ef679.webp"}},
-                        "properties": {"title": {"title": [{"text": {"content": page_title}}]}}
-                    }
-                    child_page = self.notion.create_page(data_json_child)
-                    child_page_id = child_page[1]['id']
-                    response_create_database = self.notion.create_database(utils.data_competency_assessment_create(child_page_id))
-                    all_responses = []
-                    for page in pages:
-                        response = self.notion.create_page({
-                            "parent": {"type": "database_id", "database_id": f"{response_create_database[1]['id']}"},
-                            "properties": page
-                        })
-                        all_responses.append(response)
-
+            dict_aux = {
+                "Tarefa": {"title": [{"text": {"content": "Avaliação final"}}]},
+                "Id": {"rich_text": [{"text": {"content": "Avaliação final"}}]},
+            }
+            for key, value in dict_skills.items():
+                counter = Counter(value)
+                max_freq = max(counter.values())
+                modes = [item for item, freq in counter.items() if freq == max_freq]
+                if len(modes) > 1:
+                    numeros = [int(item.split('.')[0]) for item in modes]
+                    menor_numero = min(numeros)
+                    mode = next(item for item in modes if item.startswith(f"{menor_numero}."))
                 else:
-                    child_page = self.notion.find_page_title(response[1]['id'], page_title)
-                    if not child_page[0]:
+                    mode = modes[0]
+                dict_aux.update({key: {"select": {'name': mode}}})
+
+            pages.append(dict_aux)
+
+            print('>>> Obtendo os IDs das páginas de acompanhamento dos instrutores...')
+            user_pages = self.notion.retrieve_database(self.database_users)
+            for user_page in user_pages:
+                if instructor == user_page['properties']['Nome']['rich_text'][0]['text']['content']:
+                    print(f">>> Iniciando o carregamento da página de acompanhamento de produção do(a) instrutor(a) {instructor}")
+                    response = self.notion.find_page_title(user_page['id'], "Avaliação de Competências")
+                    child_page_id = ""
+                    if not response[0]:
+                        data_json = {
+                            "parent": {"type": "page_id", "page_id": f"{user_page['id']}"},
+                            "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/instrutores/avaliacao_de_competencias/Avalia%C3%A7%C3%A3o_de_compet%C3%AAncias_03.jpg"}},
+                            "icon": {"type": "external", "external": {"url": "https://www.notion.so/icons/brain_green.svg"}},
+                            "properties": {"title": {"title": [{"text": {"content": "Avaliação de Competências"}}]}}
+                        }
+                        parent_page = self.notion.create_page(data_json)
                         data_json_child = {
-                            "parent": {"type": "page_id", "page_id": f"{response[1]['id']}"},
-                            "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/90cfa4a4-a1fc-4656-b708-8f610eab24ab.webp"}},
-                            "icon": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/054a40da-bce6-4fbc-97ef-3001ae18bcf4.webp"}},
+                            "parent": {"type": "page_id", "page_id": f"{parent_page[1]['id']}"},
+                            "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/instrutores/avaliacao_de_competencias/Avalia%C3%A7%C3%A3o_de_compet%C3%AAncias_03.jpg"}},
+                            "icon": {"type": "external", "external": {"url": "https://www.notion.so/icons/brain_green.svg"}},
                             "properties": {"title": {"title": [{"text": {"content": page_title}}]}}
                         }
                         child_page = self.notion.create_page(data_json_child)
@@ -411,17 +547,37 @@ class GodsEye:
                             all_responses.append(response)
 
                     else:
-                        all_responses = []
-                        bd_id = self.notion.retrieve_block_children(child_page[1]['id'])[0]['id']
-                        database_competency_assessment = self.notion.retrieve_database(bd_id)
-                        database_competency_assessment = [item['properties']['Id']['rich_text'][0]['text']['content'] for item in database_competency_assessment]
-                        for page in pages:
-                            if page['Id']['rich_text'][0]['text']['content'] not in database_competency_assessment:
+                        child_page = self.notion.find_page_title(response[1]['id'], page_title)
+                        if not child_page[0]:
+                            data_json_child = {
+                                "parent": {"type": "page_id", "page_id": f"{response[1]['id']}"},
+                                "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/instrutores/avaliacao_de_competencias/Avalia%C3%A7%C3%A3o_de_compet%C3%AAncias_03.jpg"}},
+                                "icon": {"type": "external", "external": {"url": "https://www.notion.so/icons/brain_green.svg"}},
+                                "properties": {"title": {"title": [{"text": {"content": page_title}}]}}
+                            }
+                            child_page = self.notion.create_page(data_json_child)
+                            child_page_id = child_page[1]['id']
+                            response_create_database = self.notion.create_database(utils.data_competency_assessment_create(child_page_id))
+                            all_responses = []
+                            for page in pages:
                                 response = self.notion.create_page({
-                                    "parent": {"type": "database_id", "database_id": f"{bd_id}"},
+                                    "parent": {"type": "database_id", "database_id": f"{response_create_database[1]['id']}"},
                                     "properties": page
                                 })
                                 all_responses.append(response)
+
+                        else:
+                            all_responses = []
+                            bd_id = self.notion.retrieve_block_children(child_page[1]['id'])[0]['id']
+                            database_competency_assessment = self.notion.retrieve_database(bd_id)
+                            database_competency_assessment = [item['properties']['Id']['rich_text'][0]['text']['content'] for item in database_competency_assessment]
+                            for page in pages:
+                                if page['Id']['rich_text'][0]['text']['content'] not in database_competency_assessment:
+                                    response = self.notion.create_page({
+                                        "parent": {"type": "database_id", "database_id": f"{bd_id}"},
+                                        "properties": page
+                                    })
+                                    all_responses.append(response)
 
         return all_responses
 
@@ -468,14 +624,17 @@ class GodsEye:
                         time.append(page['properties']['Tempo Gasto (em Dias)']['number'])
                         product_type = page['properties']['Produto']['rich_text'][0]['text']['content']
                         product_code = page['properties']['Código do Produto']['rich_text'][0]['text']['content']
-                produced_content.append({
-                    "Produto": {"rich_text": [{"text": {"content": product_type}}]},
-                    "Código do Produto": {"rich_text": [{"text": {"content": product_code}}]},
-                    "Título do Produto": {"title": [{"text": {"content": product}}]},
-                    "Instrutor(a)": {"rich_text": [{"text": {"content": instructor}}]},
-                    "Período de Produção": {"date": {"start": list(utils.min_max_dates(periods))[0], "end": list(utils.min_max_dates(periods))[1]}},
-                    "Tempo de Produção (em Dias)": {"number": sum(time)}
-                })
+
+                if product_type in ['Curso', 'Artigo', 'Podcast', 'Quinta com Dados', 'TechGuide', 'Alura+', 'Palestra', 'Curso (E)', 'Imersão', 'Artigo Pilar']:
+                    produced_content.append({
+                        "Produto": {"rich_text": [{"text": {"content": product_type}}]},
+                        "Código do Produto": {"rich_text": [{"text": {"content": product_code}}]},
+                        "Título do Produto": {"title": [{"text": {"content": product}}]},
+                        "Instrutor(a)": {"rich_text": [{"text": {"content": instructor}}]},
+                        "Período de Produção": {"date": {"start": list(utils.min_max_dates(periods))[0], "end": list(utils.min_max_dates(periods))[1]}},
+                        "Tempo de Produção (em Dias)": {"number": sum(time)},
+                        "Link": {"url": None}
+                    })
 
             print(f">>> Iniciando o carregamento da página de conteúdos produzidos do(a) instrutor(a) {instructor}")
             response = self.notion.find_page_title(user_page_id, "Conteúdos Produzidos")
@@ -483,8 +642,8 @@ class GodsEye:
             if not response[0]:
                 data_json = {
                     "parent": {"type": "page_id", "page_id": f"{user_page_id}"},
-                    "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/90cfa4a4-a1fc-4656-b708-8f610eab24ab.webp"}},
-                    "icon": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/avd/054a40da-bce6-4fbc-97ef-3001ae18bcf4.webp"}},
+                    "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/instrutores/conteudos_produzidos/Conte%C3%BAdos_produzidos_02.jpg"}},
+                    "icon": {"type": "external", "external": {"url": "https://www.notion.so/icons/science_green.svg"}},
                     "properties": {"title": {"title": [{"text": {"content": "Conteúdos Produzidos"}}]}}
                 }
                 produced_content_page = self.notion.create_page(data_json)
@@ -493,6 +652,7 @@ class GodsEye:
                 for item in produced_content:
                     response = self.notion.create_page({
                         "parent": {"type": "database_id", "database_id": f"{response_create_database[1]['id']}"},
+                        "icon": {"type": "external", "external": {"url": utils.icons(item['Produto']['rich_text'][0]['text']['content'])}},
                         "properties": item
                     })
                     all_responses.append(response)
@@ -506,6 +666,7 @@ class GodsEye:
                     if item['Título do Produto']['title'][0]['text']['content'] not in database_produced_content:
                         response = self.notion.create_page({
                             "parent": {"type": "database_id", "database_id": f"{bd_id}"},
+                            "icon": {"type": "external", "external": {"url": utils.icons(item['Produto']['rich_text'][0]['text']['content'])}},
                             "properties": item
                         })
                         all_responses.append(response)
@@ -532,30 +693,66 @@ class GodsEye:
                     pages.append(page)
 
         df = pd.DataFrame(pages)
-        df.to_csv('database.csv', sep=';', index=False)
-        print(df.head())
+        # df.to_csv('database.csv', sep=';', index=False)
+        # print(df.head())
+        df = pd.json_normalize(df['properties'])
+        df["Id"] = pd.json_normalize(df["Id.rich_text"].explode())["text.content"]
+        df["Instrutor(a)"] = pd.json_normalize(df["Instrutor(a).rich_text"].explode())["text.content"]
+        df["Status"] = df["Status.select.name"]
+        df["Tarefa"] = pd.json_normalize(df["Tarefa.title"].explode())["text.content"]
+        df["Período Planejado - start"] = df["Período Planejado.date.start"]
+        df["Período Planejado - end"] = df["Período Planejado.date.end"]
+        df["Período Realizado - start"] = df["Período Realizado.date.start"]
+        df["Período Realizado - end"] = df["Período Realizado.date.end"]
+        df["Atividade"] = pd.json_normalize(df["Atividade.rich_text"].explode())["text.content"]
+        df["Produto"] = pd.json_normalize(df["Produto.rich_text"].explode())["text.content"]
+        df["Planejamento"] = df["Planejamento.select.name"]
+        df["Código do Produto"] = pd.json_normalize(df["Código do Produto.rich_text"].explode())["text.content"]
+        df["Título do Produto"] = pd.json_normalize(df["Título do Produto.rich_text"].explode())["text.content"]
 
-        # print('>>> Carregando as informações de planejamento...')
-        # planning = utils.read_planning_sheet(self.planning_sheet_id, f"{quarter}_Produtos_Planejado")
-        # instructors = ["Afonso", "Allan", "Ana Duarte", "Bia", "Danielle", "Igor", "João", "Marcelo", "Mirla", "Val", "Ana Hashimoto", "Pedro Moura", "Sabino", "Victorino"]
-        # Planejamento = planning.query(
-        #         'Prioridade in ["Alta"] and Objetivo not in ["Publicado", "Backlog", "Produzindo"] and `Status Atual` not in ["Pós-produção"] and `Grupo Instrutor` in @instructors'
-        #     ).pivot_table(
-        #         values=['Count'],
-        #         index=['Grupo Instrutor'],
-        #         columns=['Tipo'],
-        #         aggfunc='sum',
-        #         margins=True,
-        #         margins_name='Total'
-        #     ).fillna('-')
-        # print(Planejamento)
+        df["Qualidade das entregas"] = df["Qualidade das entregas.select.name"]
+        df["Velocidade"] = df["Velocidade.select.name"]
+        df["Resposta aos feedbacks"] = df["Resposta aos feedbacks.select.name"]
+        df["Cumprimento de acordos"] = df["Cumprimento de acordos.select.name"]
+        df["Comunicação"] = df["Comunicação.select.name"]
+        df["Assiduidade"] = df["Assiduidade.select.name"]
+        df["Dedicação"] = df["Dedicação.select.name"]
+        df["Colaboração"] = df["Colaboração.select.name"]
+        df["Flexibilidade"] = df["Flexibilidade.select.name"]
+
+        columns = ["Id", "Instrutor(a)", "Status", "Tarefa", "Período Planejado - start", "Período Planejado - end", "Período Realizado - start", "Período Realizado - end", "Atividade", "Produto", "Planejamento", "Código do Produto", "Título do Produto", "Qualidade das entregas", "Velocidade", "Resposta aos feedbacks", "Cumprimento de acordos", "Comunicação", "Assiduidade", "Dedicação", "Colaboração", "Flexibilidade"]
+        df = df[columns]
+        df = df.query('Status != "Cancelada"')
+        df = df.query('Produto != "FÉRIAS"')
+        df = df.query('Produto != "ATESTADO"')
+        # print(df.shape)
+
+        table_aux = df.groupby(by=['Instrutor(a)', 'Título do Produto', 'Planejamento'])['Id'].count().reset_index()
+
+        table_01 = pd.pivot_table(table_aux, values='Título do Produto', index=['Instrutor(a)'], columns=['Planejamento'], aggfunc="count").fillna(0.0)
+        table_01['% de Demandas Não Planejadas'] = round(table_01['Não Planejada'] / (table_01['Não Planejada'] + table_01['Planejada']) * 100)
+        table_01['% de Demandas Não Planejadas'] = table_01['% de Demandas Não Planejadas'].apply(lambda x: f"{x:.0f}%")
+        table_01.reset_index(inplace=True)
+        # print(table_01)
+        data_json_table_01 = []
+        for index, row in table_01.iterrows():
+            data_json_table_01.append({
+                "Instrutor(a)": {"title": [{"text": {"content": row['Instrutor(a)']}}]},
+                "Não Planejada": {"number": row['Não Planejada']},
+                "Planejada": {"number": row['Planejada']},
+                "% de Demandas Não Planejadas": {"rich_text": [{"text": {"content": row['% de Demandas Não Planejadas']}}]}
+            })
+
+        return data_json_table_01
 
 # --------------------------------------------------------------------------------------
 if __name__ == '__main__':
     gods_eye = GodsEye()
     response = ""
     instructors=["Afonso", "Allan", "Ana Duarte", "Bia", "Danielle", "Igor", "João", "Marcelo", "Mirla", "Val"]
-    response = gods_eye.update_competency_assessment(instructors=["Val"], page_title="1º Trimestre 2024", start="2024-01-01", end="2024-03-31")
+    # instructors=["Afonso"]
+    response = gods_eye.create_quarterly_results_report(instructors=instructors, start="2024-01-01", end="2024-03-31", page_title="1º Trimestre 2024 (Teste)")
+    # response = gods_eye.update_competency_assessment(instructors=instructors, page_title="1º Trimestre 2024", start="2024-01-01", end="2024-03-31")
     # response = gods_eye.update_produced_content(instructors)
     # response = gods_eye.add_competency_assessment()
     # response = gods_eye.update_tasks_database()
@@ -563,7 +760,10 @@ if __name__ == '__main__':
     # gods_eye.restore_tasks_database()
     # response = gods_eye.statistics(instructors)
     
-    # response = gods_eye.create_quarterly_report(["João", "Marcelo"], start="2024-01-01", end="2024-03-31")
+    # notion = NotionAPI()
+    # response = notion.retrieve_page("dad6e4a7708148928a4bb70c6ad1c158")
+
+    # # response = gods_eye.create_quarterly_report(["João", "Marcelo"], start="2024-01-01", end="2024-03-31")
     # try:
     #     print(json.dumps(response, indent=4, sort_keys=True, ensure_ascii=False))
     # except:

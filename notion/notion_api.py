@@ -61,7 +61,7 @@ class NotionAPI:
         try:
             all_results.extend(data["results"])
         except:
-            all_results.extend(data)
+            all_results.append(data)
 
         return all_results
 
@@ -83,6 +83,7 @@ class NotionAPI:
     def create_page(self, json_data):
         url = f"{self.base_url}pages/"
         response = requests.post(url, headers=self.headers, json=json_data)
+        # print(response.status_code, response.json())
         return response.status_code, response.json()
 
     # --------------------------------------------------------------------------------------

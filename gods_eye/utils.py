@@ -33,6 +33,34 @@ def report(prompt):
         return ""
 
 # --------------------------------------------------------------------------------------
+# Função para definir os ícones dos produtos
+# --------------------------------------------------------------------------------------
+def icons(produto):
+    if produto in ['Alura+']:
+        icon_url = "https://storage.googleapis.com/alura-images/atividades/icons/icon-alura-mais.svg"
+    elif produto in ['Artigo', 'Artigo Pilar']:
+        icon_url = "https://storage.googleapis.com/alura-images/atividades/icons/icon-articles.svg"
+    elif produto in ['Curso', 'Curso (E)', 'Formação']:
+        icon_url = "https://storage.googleapis.com/alura-images/atividades/icons/icon-formacoes.svg"
+        # icon_url = "https://storage.googleapis.com/alura-images/atividades/icons/stats-courses.svg"
+    elif produto in ['Imersão']:
+        icon_url = "https://storage.googleapis.com/alura-images/atividades/icons/icon-imersoes.svg"
+    elif produto in ['Podcast', 'Quinta com Dados', 'Palestra']:
+        icon_url = "https://storage.googleapis.com/alura-images/atividades/icons/icon-podcasts.svg"
+    elif produto in ['TechGuide']:
+        icon_url = "https://storage.googleapis.com/alura-images/atividades/icons/icon-techguide.svg"
+    elif produto in ['Demanda Interna']:
+        icon_url = "https://www.notion.so/icons/hammer_green.svg"
+    elif produto in ['PDI']:
+        icon_url = "https://www.notion.so/icons/brain_green.svg"
+    elif produto in ['Férias']:
+        icon_url = "https://www.notion.so/icons/palm-tree_green.svg"
+    else:
+        icon_url = "https://www.notion.so/icons/science_green.svg"
+
+    return icon_url
+
+# --------------------------------------------------------------------------------------
 # Função para tratar e criar os dados que serão utilizados na atualização do database de tarefas
 # --------------------------------------------------------------------------------------
 def data_input(database_id, item):
@@ -58,10 +86,14 @@ def data_input(database_id, item):
     else:
         tempo_gasto = 0
 
+    # --------------------------------------------------------------------------------------
+    # Definindo os ícones e imagens das páginas do database
+    produto = item['Tarefa'].split('-')[0].strip()
+
     return {
-        "parent": {
-            "type": "database_id", "database_id": f"{database_id}"
-        },
+        "parent": {"type": "database_id", "database_id": f"{database_id}"},
+        # "cover": {"type": "external", "external": {"url": "https://storage.googleapis.com/alura-images/resultados/escola_de_dados/Escola_de_dados_01.jpg"}},
+        "icon": {"type": "external", "external": {"url": icons(produto)}},
         "properties": {
             "Id": {"rich_text": [{"text": {"content": f"{item['id']}"}}]},
             "Instrutor(a)": {"rich_text": [{"text": {"content": f"{item['Pessoa']}"}}]},
@@ -71,7 +103,7 @@ def data_input(database_id, item):
             "Período Realizado": {"date": {"start": f"{item['Start']}", "end": f"{(datetime.strptime(item['End'], '%Y-%m-%d') - timedelta(1)).strftime('%Y-%m-%d')}"}},
             "Anotações": {"rich_text": [{"text": {"content": f"{item['Anotações']}"}}]},
             "Atividade": {"rich_text": [{"text": {"content": f"{item['Atividade']}"}}]},
-            "Produto": {"rich_text": [{"text": {"content": f"{item['Tarefa'].split('-')[0].strip()}"}}]},
+            "Produto": {"rich_text": [{"text": {"content": produto}}]},
             "Última Atualização": {"date": {"start": f"{item['Última Atualização']}"}},
             "Planejamento": {"select": {"name": f"{item['Planejamento']}"}},
             "Código do Produto": {"rich_text": [{"text": {"content": f"{codigo}"}}]},
@@ -94,7 +126,8 @@ def data_produced_content_create(page_id):
             "Título do Produto": {"type": "title", "title": {}},
             "Instrutor(a)": {"rich_text": {}},
             "Período de Produção": {"type": "date", "date": {}},
-            "Tempo de Produção (em Dias)": {"number": {}}
+            "Tempo de Produção (em Dias)": {"type": "number", "number": {}},
+            "Link": {"type": "url", "url": {}}
         }
     }
 
@@ -204,6 +237,127 @@ def data_competency_assessment_create(page_id):
                     ]
                 }
             }
+        }
+    }
+
+# --------------------------------------------------------------------------------------
+# Função para configurar o database de resultados gerais da avaliação de competências
+# --------------------------------------------------------------------------------------
+def data_results_competency_assessment_create(page_id):
+    return {
+        "parent": {"type": "page_id","page_id": f"{page_id}"},
+        "is_inline": True,
+        "title": [{"type": "text","text": {"content": "Avaliação de Competências dos Instrutores","link": None}}],
+        "properties": {
+            "Instrutor(a)": {"type": "title","title": {}},
+            # "Id": {"rich_text": {}},
+            # "Atividade": {"rich_text": {}},
+            "Dedicação": {
+                "select": {
+                    "options": [
+                        {"name": "1. Demonstra interesse mínimo em suas responsabilidades como instrutor.", "color": "red"},
+                        {"name": "2. Mostra interesse em suas responsabilidades e realiza suas tarefas de forma consistente.", "color": "orange"},
+                        {"name": "3. Mostra um alto nível de comprometimento e dedicação em suas responsabilidades.", "color": "yellow"},
+                        {"name": "4. Demonstra um comprometimento excepcional e paixão por suas responsabilidades como instrutor.", "color": "green"},
+                    ]
+                }
+            },
+            "Cumprimento de acordos": {
+                "select": {
+                    "options": [
+                        {"name": "1. Frequentemente não cumpre prazos ou compromissos estabelecidos.", "color": "red"},
+                        {"name": "2. Geralmente cumpre prazos e compromissos estabelecidos.", "color": "orange"},
+                        {"name": "3. Sempre cumpre prazos e compromissos estabelecidos de maneira confiável.", "color": "yellow"},
+                        {"name": "4. É extremamente confiável e sempre cumpre prazos e compromissos.", "color": "green"},
+                    ]
+                }
+            },
+            "Qualidade das entregas": {
+                "select": {
+                    "options": [
+                        {"name": "1. As entregas têm muitos erros e não atendem aos padrões mínimos de qualidade.", "color": "red"},
+                        {"name": "2. As entregas são satisfatórias embora possam ocasionalmente conter erros menores.", "color": "orange"},
+                        {"name": "3. As entregas são sempre de alta qualidade atendendo ou excedendo os padrões estabelecidos.", "color": "yellow"},
+                        {"name": "4. As entregas são de nível superior refletindo um alto padrão de excelência e inovação.", "color": "green"},
+                    ]
+                }
+            },
+            "Velocidade": {
+                "select": {
+                    "options": [
+                        {"name": "1. Realiza tarefas de forma lenta e com pouca eficiência.", "color": "red"},
+                        {"name": "2. Realiza tarefas em um ritmo razoável e dentro dos prazos definidos.", "color": "orange"},
+                        {"name": "3. Realiza tarefas de forma rápida e eficiente sem comprometer a qualidade.", "color": "yellow"},
+                        {"name": "4. Realiza tarefas de forma extremamente rápida mantendo altos padrões de qualidade.", "color": "green"},
+                    ]
+                }
+            },
+            "Resposta aos feedbacks": {
+                "select": {
+                    "options": [
+                        {"name": "1. Tem dificuldade em aceitar feedbacks e pouco esforço é feito para melhorar.", "color": "red"},
+                        {"name": "2. Aceita feedbacks de forma construtiva e faz esforços para melhorar.", "color": "orange"},
+                        {"name": "3. Aceita e implementa feedbacks de forma proativa buscando constantemente melhorar seu desempenho.", "color": "yellow"},
+                        {"name": "4. Valoriza e integra feedbacks de forma excepcional mostrando desejo contínuo por desenvolvimento.", "color": "green"},
+                    ]
+                }
+            },
+            "Flexibilidade": {
+                "select": {
+                    "options": [
+                        {"name": "1. Resiste a mudanças e tem dificuldade em se adaptar a novas situações.", "color": "red"},
+                        {"name": "2. É capaz de se adaptar a mudanças e novas situações com alguma orientação.", "color": "orange"},
+                        {"name": "3. Adapta-se facilmente a mudanças e é capaz de lidar com diversas situações sem dificuldade.", "color": "yellow"},
+                        {"name": "4. Mostrou habilidade excepcional em se adaptar a qualquer situação e liderar mudanças efetivamente.", "color": "green"},
+                    ]
+                }
+            },
+            "Colaboração": {
+                "select": {
+                    "options": [
+                        {"name": "1. Tende a trabalhar de forma isolada e não contribui para o trabalho em equipe.", "color": "red"},
+                        {"name": "2. Trabalha bem em equipe e contribui para objetivos compartilhados.", "color": "orange"},
+                        {"name": "3. Colabora efetivamente com colegas e lidera iniciativas de equipe quando necessário.", "color": "yellow"},
+                        {"name": "4. É um líder colaborativo capaz de inspirar e motivar colegas para alcançar objetivos comuns.", "color": "green"},
+                    ]
+                }
+            },
+            "Comunicação": {
+                "select": {
+                    "options": [
+                        {"name": "1. Comunicação é confusa e não eficaz.", "color": "red"},
+                        {"name": "2. Comunica de forma clara e eficaz na maioria das situações.", "color": "orange"},
+                        {"name": "3. Comunica de forma clara e concisa em uma variedade de contextos.", "color": "yellow"},
+                        {"name": "4. Comunica de forma envolvente e persuasiva inspirando e influenciando os outros.", "color": "green"},
+                    ]
+                }
+            },
+            "Assiduidade": {
+                "select": {
+                    "options": [
+                        {"name": "1. Ausências frequentes e falta de comprometimento com os horários.", "color": "red"},
+                        {"name": "2. Comparece regularmente e cumpre os horários de trabalho.", "color": "orange"},
+                        {"name": "3. É altamente confiável em relação à presença e pontualidade.", "color": "yellow"},
+                        {"name": "4. É um exemplo de pontualidade e presença consistente.", "color": "green"},
+                    ]
+                }
+            }
+        }
+    }
+
+# --------------------------------------------------------------------------------------
+# Função para configurar o database de resultados com as Atividades Planejadas X Não Planejadas
+# --------------------------------------------------------------------------------------
+def data_statistics_planning_create(page_id):
+    return {
+        "parent": {"type": "page_id","page_id": f"{page_id}"},
+        "is_inline": True,
+        "title": [{"type": "text","text": {"content": "Atividades Planejadas X Não Planejadas","link": None}}],
+        "properties": {
+            "Instrutor(a)": {"type": "title","title": {}},
+            "Não Planejada": {"number": {}},
+            "Planejada": {"number": {}},
+            "% de Demandas Não Planejadas": {"rich_text": {}},
         }
     }
 
