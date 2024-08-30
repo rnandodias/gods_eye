@@ -1,0 +1,3 @@
+Este é um exemplo de arquivo TXT.
+    Ele foi criado usando Python.
+    Você pode usar este arquivo para testar o envio via Discord.

@@ -1,0 +1,122 @@
+{
+    "Allan": [
+        "https://www.alura.com.br/artigos/data-lake-vs-data-warehouse",
+        "https://www.alura.com.br/artigos/data-driven",
+        "https://www.alura.com.br/artigos/georreferenciamento-uso-ferramentas",
+        "https://www.alura.com.br/artigos/o-que-e-data-science",
+        "https://www.alura.com.br/artigos/nova-formacao-data-science",
+        "https://www.alura.com.br/artigos/primeiros-passos-com-pytorch",
+        "https://www.alura.com.br/artigos/series-temporais-e-suas-aplicacoes",
+        "https://www.alura.com.br/artigos/data-driven-o-que-e-o-que-significa-para-profissionais",
+        "https://www.alura.com.br/artigos/principais-frameworks-de-deep-learning-em-2021",
+        "https://www.alura.com.br/artigos/funcao-de-autocorrelacao",
+        "https://www.alura.com.br/artigos/ferramentas-online-trabalhar-sql",
+        "https://www.alura.com.br/artigos/modelos-matematicos-utilizados-em-series-temporais",
+        "https://www.alura.com.br/artigos/formacoes-machine-learning",
+        "https://www.alura.com.br/artigos/por-onde-comecar-estudos-area-dados",
+        "https://www.alura.com.br/artigos/metricas-de-avaliacao-para-clusterizacao"
+    ],
+    "Igor": [
+        "https://www.alura.com.br/artigos/modelagem-de-dados",
+        "https://www.alura.com.br/artigos/power-bi-contexto-de-linha-e-filtro",
+        "https://www.alura.com.br/artigos/power-bi-contexto-de-linha-e-filtro?utm_source=gnarus&utm_medium=timeline",
+        "https://www.alura.com.br/artigos/otimizacao-de-parametros",
+        "https://www.alura.com.br/artigos/lemmatization-vs-stemming-quando-usar-cada-uma",
+        "https://www.alura.com.br/artigos/data-science-em-t",
+        "https://www.alura.com.br/artigos/iniciando-projeto-spark-no-colab",
+        "https://www.alura.com.br/artigos/power-bi-contexto-linha-filtro",
+        "https://www.alura.com.br/artigos/nltk-vs-spacy",
+        "https://www.alura.com.br/artigos/google-bigquery-integracao-ferramentas",
+        "https://www.alura.com.br/artigos/diferencas-modelo-logico-modelo-fisico"
+    ],
+    "Jo\u00e3o": [
+        "https://www.alura.com.br/artigos/lidando-com-desbalanceamento-dados",
+        "https://www.alura.com.br/artigos/conhecendo-o-jupyter-notebook",
+        "https://www.alura.com.br/artigos/clusterizacao?utm_source=gnarus&utm_medium=timeline",
+        "https://www.alura.com.br/artigos/clusterizacao",
+        "https://www.alura.com.br/artigos/get-dummies-vs-onehotencoder-qual-metodo-escolher",
+        "https://www.alura.com.br/artigos/conhecendo-jupyterlab",
+        "https://www.alura.com.br/artigos/aprenda-tecnicas-otimizacao-problemas-dia-a-dia",
+        "https://www.alura.com.br/artigos/big-data"
+    ],
+    "Daniel": [
+        "https://www.alura.com.br/artigos/melhorando-a-analise-com-o-boxplot",
+        "https://www.alura.com.br/artigos/o-que-e-um-histograma",
+        "https://www.alura.com.br/artigos/latitude-longitude-power-bi",
+        "https://www.alura.com.br/artigos/power-bi-analise-de-cenario-com-parametros",
+        "https://www.alura.com.br/artigos/series-temporais-tipos-de-sazonalidade",
+        "https://www.alura.com.br/artigos/data-warehouse",
+        "https://www.alura.com.br/artigos/linguagem-r",
+        "https://www.alura.com.br/artigos/governanca-de-dados",
+        "https://www.alura.com.br/artigos/o-que-e-governanca-de-dados",
+        "https://www.alura.com.br/artigos/tableau-ensinando-dados-para-criancas",
+        "https://www.alura.com.br/artigos/storytelling-com-dados"
+    ],
+    "Danielle": [
+        "https://www.alura.com.br/artigos/mer-e-der-funcoes",
+        "https://www.alura.com.br/artigos/mongodb",
+        "https://www.alura.com.br/artigos/o-que-e-sql?c=",
+        "https://www.alura.com.br/artigos/como-instalar-mongodb-compass-shell-sistema-linux",
+        "https://www.alura.com.br/artigos/banco-de-dados",
+        "https://www.alura.com.br/artigos/sgbds-suas-linguagens-internas",
+        "https://www.alura.com.br/artigos/power-bi-excel-business-intelligence",
+        "https://www.alura.com.br/artigos/engenharia-reversa-power-architect",
+        "https://www.alura.com.br/artigos/trabalhando-funcoes-agregacao",
+        "https://www.alura.com.br/artigos/o-que-e-sql",
+        "https://www.alura.com.br/artigos/sql-clausulas-update-e-delete",
+        "https://www.alura.com.br/artigos/join-e-seus-tipos",
+        "https://www.alura.com.br/artigos/arquivos-parquet",
+        "https://www.alura.com.br/artigos/cassandra-ou-mongodb-qual-a-melhor-escolha-para-o-meu-projeto",
+        "https://www.alura.com.br/artigos/sgbds-relacionais"
+    ],
+    "Afonso": [
+        "https://www.alura.com.br/artigos/tipo-de-visualizacao-de-dados",
+        "https://www.alura.com.br/artigos/analise-de-dados",
+        "https://www.alura.com.br/artigos/bigquery-empresas",
+        "https://www.alura.com.br/artigos/qlik-o-que-e",
+        "https://www.alura.com.br/artigos/soft-skills-mais-importantes-area-dados?utm_source=gnarus&utm_medium=timeline",
+        "https://www.alura.com.br/artigos/aplicacoes-sql-diversas-areas",
+        "https://www.alura.com.br/artigos/excel",
+        "https://www.alura.com.br/artigos/soft-skills-mais-importantes-area-dados"
+    ],
+    "Marcelo": [
+        "https://www.alura.com.br/artigos/ambientes-em-r",
+        "https://www.alura.com.br/artigos/dax-cheat-sheet",
+        "https://www.alura.com.br/artigos/arquitetura-serverless",
+        "https://www.alura.com.br/artigos/codigos-em-r",
+        "https://www.alura.com.br/artigos/como-criar-conta-do-power-bi",
+        "https://www.alura.com.br/artigos/executores-airflow-tipos-funcoes",
+        "https://www.alura.com.br/artigos/linguagem-dax",
+        "https://www.alura.com.br/artigos/portfolio-em-dados",
+        "https://www.alura.com.br/artigos/problemas-resolvidos-algoritmos-classificacao",
+        "https://www.alura.com.br/artigos/power-bi-medidas-implicitas-e-explicitas",
+        "https://www.alura.com.br/artigos/power-bi-tipos-de-licencas",
+        "https://www.alura.com.br/artigos/engenharia-dados",
+        "https://www.alura.com.br/artigos/machine-learning-tecnicas-bagging-boosting",
+        "https://www.alura.com.br/artigos/business-intelligence-bi",
+        "https://www.alura.com.br/artigos/pacote-r",
+        "https://www.alura.com.br/artigos/tipos-de-dados-power-bi"
+    ],
+    "Bia": [
+        "https://www.alura.com.br/artigos/trigger-em-sql",
+        "https://www.alura.com.br/artigos/mysql-no-mercado",
+        "https://www.alura.com.br/artigos/microstrategy-o-que-e",
+        "https://www.alura.com.br/artigos/relacionamento-reflexivo-modelagem-banco-de-dados",
+        "https://www.alura.com.br/artigos/tidyverse",
+        "https://www.alura.com.br/artigos/normalizacao",
+        "https://www.alura.com.br/artigos/por-onde-comecar-estudos-area-dados"
+    ],
+    "Larissa": [
+        "https://www.alura.com.br/artigos/bigquery-para-que-serve-como-utilizar",
+        "https://www.alura.com.br/artigos/big-query",
+        "https://www.alura.com.br/artigos/banco-de-dados-mysql-bigquery"
+    ],
+    "Mirla": [
+        "https://www.alura.com.br/artigos/assuntos-que-assombram-em-data-science",
+        "https://www.alura.com.br/artigos/machine-learning",
+        "https://www.alura.com.br/artigos/machine-learning-com-apache-spark"
+    ],
+    "Val": [
+        "https://www.alura.com.br/artigos/metodo-boosting"
+    ]
+}

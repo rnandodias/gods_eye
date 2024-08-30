@@ -1,0 +1,101 @@
+*.csv
+lista_de_tuplas.txt
+*.ini
+
+# Bytecode compilado
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pacotes
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+bin/
+var/
+sdist/
+develop-eggs/
+.waf-*
+.eggs/
+lib/
+lib64/
+
+# Instalações do Pip
+*.egg
+/.pip/
+/cache/
+/wheels/
+
+# Diretórios de ambiente virtual
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Spyder configurações do projeto
+.spyderproject
+.spyproject
+
+# Rope configuração do projeto
+.ropeproject
+
+# MkDocs configuração do documento
+/site
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath arquivos de parseados
+*.sage.py
+
+# Envs
+.env
+.env.local
+.env.*.local
+.excludes
+
+# IDEs e editores
+.idea/
+*.swp
+*.swo
+*.swa
+.vscode/
+*.sublime-workspace
+
+# Instâncias de banco de dados SQLite (frequentemente usado como desenvolvimento local)
+*.sqlite3
+*.db
+
+# Arquivos de log
+*.log
+
+# Pasta de mídia
+media/
+
+# Scrapy stuff
+.scrapy
+
+# pytest
+.cache
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
