@@ -23,6 +23,9 @@ develop-eggs/
 lib/
 lib64/
 
+# Informações pessoais
+docs/feedback/
+
 # Instalações do Pip
 *.egg
 /.pip/
